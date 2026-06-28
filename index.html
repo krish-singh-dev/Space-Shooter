@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -138,8 +138,8 @@ class Bullet{
     if(!this.on)return;this.age+=dt;
     if(!this.isP&&this.type===3&&pT&&pT.alive){
       const dx=pT.x-this.x,dy=pT.y-this.y,l=Math.max(1,Math.hypot(dx,dy));
-      this.vx+=(dx/l)*110*dt;this.vy+=(dy/l)*110*dt;
-      const sp=Math.hypot(this.vx,this.vy);if(sp>155){this.vx=this.vx/sp*155;this.vy=this.vy/sp*155;}
+      this.vx+=(dx/l)*40*dt;this.vy+=(dy/l)*40*dt;
+      const sp=Math.hypot(this.vx,this.vy);if(sp>80){this.vx=this.vx/sp*80;this.vy=this.vy/sp*80;}
     }
     this.x+=this.vx*dt;this.y+=this.vy*dt;
     if(this.x<-60||this.x>W+60||this.y<-60||this.y>H+60)this.on=false;
@@ -168,8 +168,8 @@ class Bullet{
 class Player{
   constructor(W,H){this.W=W;this.H=H;this.w=28;this.h=32;this.reset();}
   reset(){
-    this.x=this.W/2;this.y=this.H*0.8;this.lives=3;this.alive=true;this.shield=false;
-    this.wTier=0;this.bombs=3;this.iTime=0;this.spTime=0;this.mgTime=0;this.slTime=0;
+    this.x=this.W/2;this.y=this.H*0.8;this.lives=5;this.alive=true;this.shield=false;
+    this.wTier=0;this.bombs=5;this.iTime=0;this.spTime=0;this.mgTime=0;this.slTime=0;
     this.combo=1;this.cTimer=0;this.fCool=0;this.mx=0;this.my=0;this.eGlow=0.3;
   }
   update(dt,inp,auto,bullets,audio){
@@ -202,8 +202,8 @@ class Player{
   }
   hit(audio){
     if(this.iTime>0)return false;
-    if(this.shield){this.shield=false;this.iTime=1.5;return false;}
-    this.combo=1;this.cTimer=0;this.lives--;this.iTime=3;if(audio)audio.phit();
+    if(this.shield){this.shield=false;this.iTime=2.5;return false;}
+    this.combo=1;this.cTimer=0;this.lives--;this.iTime=4.5;if(audio)audio.phit();
     if(this.lives<=0)this.alive=false;return true;
   }
   addKill(){this.combo=Math.min(10,this.combo+1);this.cTimer=3+this.combo*0.4;}
@@ -243,11 +243,11 @@ class Enemy{
     this.type=type;this.x=x;this.y=y;this.W=W;this.H=H;this.on=true;this.age=0;this.flash=0;this.sx=x;
     const ws=1+wave*0.07;
     switch(type){
-      case 'grunt':this.hp=this.mhp=Math.max(1,Math.ceil(2*ws));this.spd=80+wave*5;this.w=24;this.h=20;this.pts=100;this.fc=0.5+Math.random()*1.5;this.fi=Math.max(0.7,2-wave*0.05);break;
-      case 'zigzag':this.hp=this.mhp=Math.max(1,Math.ceil(1.5*ws));this.spd=110+wave*6;this.w=22;this.h=18;this.pts=150;this.sAmp=80+wave*2;this.sFreq=2.5;this.fc=0.5+Math.random()*2;this.fi=Math.max(0.9,2.5-wave*0.06);break;
+      case 'grunt':this.hp=this.mhp=Math.max(1,Math.ceil(2*ws));this.spd=55+wave*3;this.w=24;this.h=20;this.pts=100;this.fc=0.5+Math.random()*1.5;this.fi=Math.max(0.7,2-wave*0.05);break;
+      case 'zigzag':this.hp=this.mhp=Math.max(1,Math.ceil(1.5*ws));this.spd=80+wave*4;this.w=22;this.h=18;this.pts=150;this.sAmp=80+wave*2;this.sFreq=2.5;this.fc=0.5+Math.random()*2;this.fi=Math.max(0.9,2.5-wave*0.06);break;
       case 'bomber':this.hp=this.mhp=Math.max(3,Math.ceil(5*ws));this.spd=45+wave*3;this.w=30;this.h=28;this.pts=200;this.mc=1.5+Math.random()*1.5;this.mi=Math.max(1.2,3-wave*0.05);break;
-      case 'speeder':this.hp=this.mhp=1;this.spd=380+wave*18;this.w=18;this.h=22;this.pts=120;this.vx=(Math.random()-0.5)*80;this.vy=this.spd;break;
-      case 'drone':this.hp=this.mhp=Math.max(2,Math.ceil(3*ws));this.spd=120;this.w=20;this.h=20;this.pts=180;this.oAng=Math.random()*Math.PI*2;this.oR=125+Math.random()*30;this.oSpd=1.6;this.oCenter=null;break;
+      case 'speeder':this.hp=this.mhp=1;this.spd=260+wave*10;this.w=18;this.h=22;this.pts=120;this.vx=(Math.random()-0.5)*80;this.vy=this.spd;break;
+      case 'drone':this.hp=this.mhp=Math.max(2,Math.ceil(3*ws));this.spd=90;this.w=20;this.h=20;this.pts=180;this.oAng=Math.random()*Math.PI*2;this.oR=125+Math.random()*30;this.oSpd=1.6;this.oCenter=null;break;
     }
     if(this.fc===undefined)this.fc=999;
   }
@@ -265,11 +265,22 @@ class Enemy{
   }
   _shoot(dt,bullets,audio,player){
     this.fc-=dt;if(this.fc>0||!player?.alive)return;this.fc=this.fi;
-    const dx=player.x-this.x,dy=player.y-this.y,l=Math.max(1,Math.hypot(dx,dy));
-    const b=bullets.find(b=>!b.on);if(b)b.init(this.x,this.y+this.h/2,dx/l*200,dy/l*200,false,0,1);
+    const b=bullets.find(b=>!b.on);
+    if(b){
+      if(this.type==='grunt'){
+        b.init(this.x,this.y+this.h/2,0,150,false,0,1);
+      }else if(this.type==='zigzag'){
+        const vx=(Math.random()-0.5)*30;
+        b.init(this.x,this.y+this.h/2,vx,150,false,0,1);
+      }else{
+        const dx=player.x-this.x,dy=player.y-this.y,l=Math.max(1,Math.hypot(dx,dy));
+        let a=Math.atan2(dy,dx)+(Math.random()-0.5)*0.5;
+        b.init(this.x,this.y+this.h/2,Math.cos(a)*160,Math.sin(a)*160,false,0,1);
+      }
+    }
     if(audio)audio.laser(0);
   }
-  _mine(dt,bullets,audio){this.mc-=dt;if(this.mc>0)return;this.mc=this.mi;const b=bullets.find(b=>!b.on);if(b)b.init(this.x,this.y+this.h/2,0,22,false,3,1);if(audio)audio.hit();}
+  _mine(dt,bullets,audio){this.mc-=dt;if(this.mc>0)return;this.mc=this.mi;const b=bullets.find(b=>!b.on);if(b)b.init(this.x,this.y+this.h/2,0,15,false,3,1);if(audio)audio.hit();}
   hit(d){this.hp-=d;this.flash=0.12;if(this.hp<=0){this.on=false;return true;}return false;}
   draw(ctx){
     if(!this.on)return;ctx.save();const f=this.flash>0,x=this.x,y=this.y;
@@ -291,7 +302,7 @@ class Boss{
     this.W=W;this.H=H;this.x=W/2;this.y=-130;this.tY=H*0.2;this.w=100;this.h=80;
     this.on=true;this.alive=true;this.phase=1;this.rage=false;this.age=0;this.entering=true;this.flash=0;
     this.aTimer=0;this.pTimer=0;this.pat=0;this.tangs=new Array(6).fill(0);this.mAng=0;
-    const sc=1+(Math.ceil(wave/5)-1)*0.4;this.mhp=Math.floor(250*sc);this.hp=this.mhp;this.pts=6000*Math.ceil(wave/5);
+    const sc=1+(Math.ceil(wave/5)-1)*0.4;this.mhp=Math.floor(180*sc);this.hp=this.mhp;this.pts=6000*Math.ceil(wave/5);
   }
   update(dt,bullets,audio,player,slow){
     if(!this.on)return;this.age+=dt;if(this.flash>0)this.flash-=dt;
@@ -310,10 +321,10 @@ class Boss{
     const sp=(vx,vy,ty=0)=>{const b=bullets.find(b=>!b.on);if(b)b.init(this.x,this.y+this.h/2,vx,vy,false,ty,1);};
     const dx=player.x-this.x,dy=player.y-this.y;
     switch(this.pat%(this.phase+2)){
-      case 0:for(let i=-2;i<=2;i++){const a=Math.atan2(dy,dx)+i*0.22;sp(Math.cos(a)*200,Math.sin(a)*200);}break;
-      case 1:{const cnt=8+this.phase*3;for(let i=0;i<cnt;i++){const a=(i/cnt)*Math.PI*2+this.age;sp(Math.cos(a)*190,Math.sin(a)*190);}break;}
-      case 2:for(let i=-3;i<=3;i++)sp(i*28,280,1);break;
-      case 3:for(let arm=0;arm<3;arm++){const a=this.age*3+arm*(Math.PI*2/3);sp(Math.cos(a)*230,Math.sin(a)*230);}break;
+      case 0:for(let i=-2;i<=2;i++){const a=Math.atan2(dy,dx)+i*0.22;sp(Math.cos(a)*150,Math.sin(a)*150);}break;
+      case 1:{const cnt=8+this.phase*3;for(let i=0;i<cnt;i++){const a=(i/cnt)*Math.PI*2+this.age;sp(Math.cos(a)*140,Math.sin(a)*140);}break;}
+      case 2:for(let i=-3;i<=3;i++)sp(i*25,200,1);break;
+      case 3:for(let arm=0;arm<3;arm++){const a=this.age*3+arm*(Math.PI*2/3);sp(Math.cos(a)*170,Math.sin(a)*170);}break;
     }
     if(audio)audio.laser(3);
   }
@@ -520,8 +531,8 @@ class Game{
     this.pups.forEach(p=>{if(!p.on||!this.player.alive)return;if(this._c(p.x,p.y,16,this.player.x,this.player.y,24)){p.on=false;this.audio.pickup();this.parts.burst(p.x,p.y,14,['#fff','#ffdd00'],80,200,0.3,0.6,2,5);this._applyPU(p.type);}});
   }
   _c(x1,y1,r1,x2,y2,r2){return Math.hypot(x2-x1,y2-y1)<r1+r2;}
-  _applyPU(type){switch(type){case 'shield':this.player.shield=true;break;case 'speed':this.player.spTime=5;break;case 'weapon':this.player.wTier=Math.min(5,this.player.wTier+1);break;case 'life':this.player.lives=Math.min(6,this.player.lives+1);break;case 'magnet':this.player.mgTime=8;break;case 'timeslow':this.player.slTime=4;break;}}
-  _killE(e){const pts=e.pts||100;this.score+=pts*this.player.combo;this.player.addKill();this.sKills++;this.audio.boom();this._shake(3,0.15);this.parts.burst(e.x,e.y,28,this._eCols(e.type),80,260,0.4,1.2,2,7);if(Math.random()<0.22)this._dropPU(e.x,e.y);}
+  _applyPU(type){switch(type){case 'shield':this.player.shield=true;break;case 'speed':this.player.spTime=8;break;case 'weapon':this.player.wTier=Math.min(5,this.player.wTier+1);break;case 'life':this.player.lives=Math.min(8,this.player.lives+1);break;case 'magnet':this.player.mgTime=12;break;case 'timeslow':this.player.slTime=6;break;}}
+  _killE(e){const pts=e.pts||100;this.score+=pts*this.player.combo;this.player.addKill();this.sKills++;this.audio.boom();this._shake(3,0.15);this.parts.burst(e.x,e.y,28,this._eCols(e.type),80,260,0.4,1.2,2,7);if(Math.random()<0.38)this._dropPU(e.x,e.y);}
   _eCols(type){const m={grunt:['#ff4444','#ff8888','#ff2200','#ffaa00'],zigzag:['#ff9900','#ffcc44','#ff6600','#ffdd00'],bomber:['#aa00ff','#cc44ff','#6600aa','#ff44ff'],speeder:['#ff00aa','#ff44cc','#cc0077','#ff88dd'],drone:['#44aaff','#0066ff','#00ccff','#88ccff']};return m[type]||['#fff','#ffdd00'];}
   _bomb(){
     if(this.player.bombs<=0||!this.player.alive)return;
@@ -556,7 +567,7 @@ class Game{
   _render(){
     const ctx=this.ctx,W=this.W,H=this.H;ctx.save();ctx.translate(this.sx,this.sy);
     ctx.fillStyle=PAL.bg;ctx.fillRect(0,0,W,H);this.neb.draw(ctx);this.stars.draw(ctx);
-    if(this.player.slTime>0&&this.state===ST.PLAY){ctx.fillStyle=`rgba(20,50,160,${0.14*(this.player.slTime/4)})`;ctx.fillRect(0,0,W,H);}
+    if(this.player.slTime>0&&this.state===ST.PLAY){ctx.fillStyle=`rgba(20,50,160,${0.14*(this.player.slTime/6)})`;ctx.fillRect(0,0,W,H);}
     if(this.bFlash>0){ctx.fillStyle=`rgba(255,255,255,${this.bFlash})`;ctx.fillRect(0,0,W,H);}
     switch(this.state){
       case ST.MENU:this._rMenu(ctx,W,H);break;case ST.PLAY:this._rGame(ctx,W,H);break;
